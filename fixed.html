@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The AI Digital Product Black Book</title>
+  <style>
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+      background: #05070A;
+      color: #F5F7FA;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <p>Opening the Black Book...</p>
+  <script>
+    (() => {
+      const compactNavCss = `
+.reader-nav {
+  transition: padding 180ms ease, gap 180ms ease, background 180ms ease;
+}
+
+.reader-nav .brand {
+  transition: font-size 180ms ease, max-width 180ms ease;
+}
+
+@media (max-width: 780px) {
+  .reader-nav.is-condensed {
+    align-items: center;
+    flex-direction: row;
+    gap: 8px;
+    padding: 6px 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    background: rgba(5, 7, 10, 0.94);
+  }
+
+  .reader-nav.is-condensed .brand {
+    flex: 0 0 auto;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    line-height: 1;
+  }
+
+  .reader-nav.is-condensed .nav-links {
+    flex: 1 1 auto;
+    width: auto;
+    flex-wrap: nowrap;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 0;
+    scrollbar-width: none;
+  }
+
+  .reader-nav.is-condensed .nav-links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .reader-nav.is-condensed .nav-links a {
+    flex: 0 0 auto;
+    min-height: 30px;
+    padding: 5px 10px;
+    font-size: 11px;
+    line-height: 1;
+  }
+}`;
+
+      const compactNavScript = `
+<script>
+  (() => {
+    const nav = document.querySelector('.reader-nav');
+    if (!nav) return;
+
+    const updateNav = () => {
+      nav.classList.toggle('is-condensed', window.scrollY > 80);
+    };
+
+    updateNav();
+    window.addEventListener('scroll', updateNav, { passive: true });
+
+    if (location.hash) {
+      requestAnimationFrame(() => {
+        document.querySelector(location.hash)?.scrollIntoView();
+      });
+    }
+  })();
+<\/script>`;
+
+      fetch('/index.html', { cache: 'no-store' })
+        .then((response) => response.text())
+        .then((html) => {
+          const patched = html
+            .replace('</head>', `<style id="compact-nav-patch">${compactNavCss}</style></head>`)
+            .replace('</body>', `${compactNavScript}</body>`);
+
+          document.open();
+          document.write(patched);
+          document.close();
+        })
+        .catch(() => {
+          document.body.innerHTML = '<p>Book could not load. Please refresh the page.</p>';
+        });
+    })();
+  </script>
+</body>
+</html>
