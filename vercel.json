@@ -1,20 +1,22 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
-  "routes": [
+  "redirects": [
     {
-      "src": "/",
-      "dest": "/fixed.html",
-      "headers": {
-        "X-Content-Type-Options": "nosniff"
-      }
-    },
+      "source": "/",
+      "destination": "/fixed.html",
+      "permanent": false
+    }
+  ],
+  "headers": [
     {
-      "src": "/(.*)",
-      "dest": "/$1",
-      "headers": {
-        "X-Content-Type-Options": "nosniff"
-      }
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
+      ]
     }
   ]
 }
