@@ -104,6 +104,7 @@
         .then((response) => response.text())
         .then((html) => {
           const patched = html
+            .replaceAll('loading="lazy"', 'loading="eager"')
             .replace('</head>', `<style id="compact-nav-patch">${compactNavCss}</style></head>`)
             .replace('</body>', `${compactNavScript}</body>`);
 
