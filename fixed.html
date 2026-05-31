@@ -25,7 +25,7 @@
 <body>
   <p>Opening the Black Book...</p>
   <script>
-    (() => {
+    (async () => {
       const compactNavCss = `
 .reader-nav {
   transition: padding 180ms ease, gap 180ms ease, background 180ms ease;
@@ -79,42 +79,29 @@
   }
 }`;
 
-      const compactNavScript = `
-<script>
-  (() => {
-    const nav = document.querySelector('.reader-nav');
-    if (!nav) return;
+      const compactNavCode = `(() => {
+  const nav = document.querySelector('.reader-nav');
+  if (!nav) return;
+  const updateNav = () => nav.classList.toggle('is-condensed', window.scrollY > 80);
+  updateNav();
+  window.addEventListener('scroll', updateNav, { passive: true });
+  if (location.hash) requestAnimationFrame(() => document.querySelector(location.hash)?.scrollIntoView());
+})();`;
 
-    const updateNav = () => {
-      nav.classList.toggle('is-condensed', window.scrollY > 80);
-    };
-
-    updateNav();
-    window.addEventListener('scroll', updateNav, { passive: true });
-
-    if (location.hash) {
-      requestAnimationFrame(() => {
-        document.querySelector(location.hash)?.scrollIntoView();
-      });
-    }
-  })();
-<\/script>`;
-
-      fetch('/index.html', { cache: 'no-store' })
-        .then((response) => response.text())
-        .then((html) => {
-          const patched = html
-            .replaceAll('loading="lazy"', 'loading="eager"')
-            .replace('</head>', `<style id="compact-nav-patch">${compactNavCss}</style></head>`)
-            .replace('</body>', `${compactNavScript}</body>`);
-
-          document.open();
-          document.write(patched);
-          document.close();
-        })
-        .catch(() => {
-          document.body.innerHTML = '<p>Book could not load. Please refresh the page.</p>';
-        });
+      try {
+        const response = await fetch('/index.html', { cache: 'no-store' });
+        if (!response.ok) throw new Error('Book file not found');
+        let html = await response.text();
+        html = html
+          .replaceAll('loading="lazy"', 'loading="eager"')
+          .replace('</head>', `<style id="compact-nav-patch">${compactNavCss}</style></head>`)
+          .replace('</body>', '<' + 'script id="compact-nav-script">' + compactNavCode + '<' + '/script></body>');
+        document.open();
+        document.write(html);
+        document.close();
+      } catch (error) {
+        document.body.innerHTML = '<p>Book could not load. Please open the main link again in a new tab.</p>';
+      }
     })();
   </script>
 </body>
